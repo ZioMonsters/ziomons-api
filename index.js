@@ -1,8 +1,8 @@
 const Valkyrie = require("aws-valkyrie");
 const app = new Valkyrie();
 const AWS = require("aws-sdk");
-
 const dynamodb = new AWS.DynamoDB();
+const pkg = require('./package.json');
 
 const env = "staging";
 
@@ -18,6 +18,8 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => res.send("this is cryptomon"));
+
+app.get('/info', (req, res) => res.json(pkg));
 
 app.get("/monstersOfAddress", ({body: {address}}, res) => {
   if (!address) return res.sendStatus(400);
