@@ -7,6 +7,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "aws-sdk": "^2.264.1",
     "aws-valkyrie": "^0.8.9"
   }
 }
