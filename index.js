@@ -21,7 +21,7 @@ app.get("/", (req, res) => res.send("this is cryptomon"));
 
 app.get('/info', (req, res) => res.json(pkg));
 
-app.get("/monstersOfAddress", ({body: {address}}, res) => {
+app.get("/monstersOfAddress", ({queryStringParameters: {address}}, res) => {
   if (!address) return res.sendStatus(400);
 
   const params = {
