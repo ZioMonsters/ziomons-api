@@ -1,0 +1,43 @@
+{
+  "Project": {
+    "Region": "eu-west-3"
+  },
+  "Environments": {
+    "staging": {
+      "Iam": {
+        "RoleName": "cryptomon-api-staging-lambda",
+        "PolicyArn": "arn:aws:iam::477398036046:policy/valkyrie/staging/cryptomon-api-staging-lambda"
+      },
+      "Api": {
+        "Id": "e5ulxx3lni"
+      },
+      "Lambda": {
+        "FunctionName": "cryptomon-api-staging",
+        "Description": "",
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Timeout": "10",
+        "Runtime": "nodejs8.10",
+        "Role": "arn:aws:iam::477398036046:role/valkyrie/staging/cryptomon-api-staging-lambda"
+      }
+    },
+    "production": {
+      "Iam": {
+        "RoleName": "cryptomon-api-production-lambda",
+        "PolicyArn": "arn:aws:iam::477398036046:policy/valkyrie/production/cryptomon-api-production-lambda"
+      },
+      "Api": {
+        "Id": "7dlpxi09d0"
+      },
+      "Lambda": {
+        "FunctionName": "cryptomon-api-production",
+        "Description": "",
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Timeout": "10",
+        "Runtime": "nodejs8.10",
+        "Role": "arn:aws:iam::477398036046:role/valkyrie/production/cryptomon-api-production-lambda"
+      }
+    }
+  }
+}
