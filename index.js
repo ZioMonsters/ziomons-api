@@ -24,10 +24,11 @@ app.get('/info', (req, res) => res.json(pkg));
 app.get("/monstersOfAddress", ({queryStringParameters: {address}}, res) => {
   if (!address) return res.sendStatus(400);
 
+
   const params = {
     ConsistentRead: false,
     Key: {
-      address //TODO check for valid address before?
+      address: {S: "address"} //TODO check for valid address before?
     },
     TableName: `cryptomon-monsters-${env}`
   };
