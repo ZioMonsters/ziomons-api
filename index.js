@@ -1,7 +1,7 @@
 const Valkyrie = require("aws-valkyrie");
 const app = new Valkyrie();
 const AWS = require("aws-sdk");
-const dynamodb = new AWS.DynamoDB({region: "eu-west-3"});
+const dynamodb = new AWS.DynamoDB({ region: "eu-west-3" });
 const pkg = require('./package.json');
 
 const env = "staging";
@@ -36,11 +36,29 @@ app.get("/monstersOfAddress", ({queryStringParameters: {address}}, res) => {
 
   dynamodb.query(params)
     .promise()
-    .then(e => res.status(200).json(e))
-    .catch(e => rgcm es.status(500).json(e));
+    .then(({Items}) => res.status(200).json(Items))
+    .catch(e => res.status(500).json(e));
 });
 
+app.get("/battlesOfAddress", ({queryStringParameters: {address}}, res) => {
+  if (!address) return res.sendStatus(400);
 
+  const params = {
+    TableName: `cryptomon-events-${env}`,
+    IndexName: "EventTypeResults",
+    ExpressionAttributeValues: {
+      ":e": { S: "Results" },
+      ":a": { S: address }
+    },
+    KeyConditionExpression: "eventType = :e",
+    FilterExpression: ":a IN (attacker, defender)"
+  };
+
+  dynamodb.query(params)
+    .promise()
+    .then(({Items}) => res.status(200).json(Items))
+    .catch(e => res.status(500).json(e));
+});
 
 app.all("*", (req, res) => res.sendStatus(404));
 
