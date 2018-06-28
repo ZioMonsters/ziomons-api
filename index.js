@@ -24,19 +24,20 @@ app.get('/info', (req, res) => res.json(pkg));
 app.get("/monstersOfAddress", ({queryStringParameters: {address}}, res) => {
   if (!address) return res.sendStatus(400);
 
-
   const params = {
-    ConsistentRead: false,
-    Key: {
-      address: {S: "address"} //TODO check for valid address before?
+    TableName: `cryptomon-monsters-${env}`,
+    ExpressionAttributeValues: {
+      ":a" : {
+        S: address
+      }
     },
-    TableName: `cryptomon-monsters-${env}`
+    KeyConditionExpression: "address = :a"
   };
 
-  dynamodb.getItem(params)
+  dynamodb.query(params)
     .promise()
-    .then(console.log)
-    .catch(console.error);
+    .then(res.status(200).json)
+    .catch(res.status(400).json);
 });
 
 app.all("*", (req, res) => res.sendStatus(404));
