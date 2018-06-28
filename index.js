@@ -1,7 +1,7 @@
 const Valkyrie = require("aws-valkyrie");
 const app = new Valkyrie();
 const AWS = require("aws-sdk");
-const dynamodb = new AWS.DynamoDB();
+const dynamodb = new AWS.DynamoDB({region: "eu-west-3"});
 const pkg = require('./package.json');
 
 const env = "staging";
@@ -36,9 +36,11 @@ app.get("/monstersOfAddress", ({queryStringParameters: {address}}, res) => {
 
   dynamodb.query(params)
     .promise()
-    .then(res.status(200).json)
-    .catch(res.status(400).json);
+    .then(e => res.status(200).json(e))
+    .catch(e => rgcm es.status(500).json(e));
 });
+
+
 
 app.all("*", (req, res) => res.sendStatus(404));
 
