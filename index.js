@@ -4,7 +4,7 @@ const AWS = require("aws-sdk");
 const dynamodb = new AWS.DynamoDB({ region: "eu-west-3" });
 const pkg = require('./package.json');
 
-const env = "staging";
+const env = "production";
 
 //body parser middleware; it will become an external module;
 app.use((req, res, next) => {
