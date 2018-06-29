@@ -22,13 +22,13 @@ app.get("/home", (req, res) => res.send("this is cryptomon"));
 app.get('/info', (req, res) => res.json(pkg));
 
 app.get("/monstersOfAddress", ({queryStringParameters: {address}}, res) => {
-  if (!address) return res.sendStatus(400);
+  if (!/^0x[a-fA-F0-9]{40}$/g.test(address)) return res.status(400).send("");
 
   const params = {
     TableName: `cryptomon-monsters-${env}`,
     ExpressionAttributeValues: {
       ":a" : {
-        S: address
+        S: address.substr(2)
       }
     },
     KeyConditionExpression: "address = :a"
@@ -41,14 +41,14 @@ app.get("/monstersOfAddress", ({queryStringParameters: {address}}, res) => {
 });
 
 app.get("/battlesOfAddress", ({queryStringParameters: {address}}, res) => {
-  if (!address) return res.sendStatus(400);
+  if (!/^0x[a-fA-F0-9]{40}$/g.test(address)) return res.sendStatus(400);
 
   const params = {
     TableName: `cryptomon-events-${env}`,
     IndexName: "EventTypeResults",
     ExpressionAttributeValues: {
       ":e": { S: "Results" },
-      ":a": { S: address }
+      ":a": { S: address.substr(2) }
     },
     KeyConditionExpression: "eventType = :e",
     FilterExpression: ":a IN (attacker, defender)"
