@@ -17,12 +17,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/home", (req, res) => res.send("this is cryptomon"));
+app.get("/home", (req, res) => res.send("This is cryptomon"));
 
 app.get('/info', (req, res) => res.json(pkg));
 
 app.get("/monstersOfAddress", ({queryStringParameters: {address}}, res) => {
-  if (!/^0x[a-fA-F0-9]{40}$/g.test(address)) return res.status(400).send("Malformed address.");
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) return res.status(400).send("Invalid address.");
 
   const params = {
     TableName: `cryptomon-monsters-${env}`,
@@ -41,7 +41,7 @@ app.get("/monstersOfAddress", ({queryStringParameters: {address}}, res) => {
 });
 
 app.get("/battlesOfAddress", ({queryStringParameters: {address}}, res) => {
-  if (!/^0x[a-fA-F0-9]{40}$/g.test(address)) return res.status(400).send("Malformed address.");
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) return res.status(400).send("Invalid address.");
 
   const params = {
     TableName: `cryptomon-events-${env}`,
