@@ -17,7 +17,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => res.send("this is cryptomon"));
+app.get("/home", (req, res) => res.send("this is cryptomon"));
 
 app.get('/info', (req, res) => res.json(pkg));
 
