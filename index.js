@@ -22,7 +22,7 @@ app.get("/home", (req, res) => res.send("this is cryptomon"));
 app.get('/info', (req, res) => res.json(pkg));
 
 app.get("/monstersOfAddress", ({queryStringParameters: {address}}, res) => {
-  if (!/^0x[a-fA-F0-9]{40}$/g.test(address)) return res.status(400).send("");
+  if (!/^0x[a-fA-F0-9]{40}$/g.test(address)) return res.status(400).send("Malformed address.");
 
   const params = {
     TableName: `cryptomon-monsters-${env}`,
@@ -41,7 +41,7 @@ app.get("/monstersOfAddress", ({queryStringParameters: {address}}, res) => {
 });
 
 app.get("/battlesOfAddress", ({queryStringParameters: {address}}, res) => {
-  if (!/^0x[a-fA-F0-9]{40}$/g.test(address)) return res.sendStatus(400);
+  if (!/^0x[a-fA-F0-9]{40}$/g.test(address)) return res.status(400).send("Malformed address.");
 
   const params = {
     TableName: `cryptomon-events-${env}`,
@@ -58,6 +58,10 @@ app.get("/battlesOfAddress", ({queryStringParameters: {address}}, res) => {
     .promise()
     .then(({Items}) => res.status(200).json(Items))
     .catch(e => res.status(500).json(e));
+});
+
+app.get("/monstersInSale", (req, res) => {
+  //TODO
 });
 
 app.all("*", (req, res) => res.sendStatus(404));
