@@ -66,7 +66,7 @@ app.get("/battlesOfAddress", ({queryStringParameters: {address, ExclusiveStartKe
     TableName: `cryptomon-events-${env}`,
     IndexName: "EventTypeResults",
     ExclusiveStartKey,
-    Limit: paginatorLimit,
+    Limit: paginatorLimit, //warning: Limit is applied before filtering.
     ExpressionAttributeValues: {
       ":e": { S: "Results" },
       ":a": { S: address.substr(2) }
