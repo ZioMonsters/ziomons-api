@@ -18,6 +18,13 @@ app.use((req, res, next) => {
   next();
 });
 
+//Used to prevent errors when trying to destructure queryStringParameters from lambda
+app.use((req, res, next) => {
+  if (!req.queryStringParameters)
+    req.queryStringParameters = {};
+  next();
+});
+
 app.get("/home", (req, res) => res.send("This is cryptomon"));
 
 app.get('/info', (req, res) => res.json(pkg));
@@ -91,7 +98,8 @@ app.get("/monstersInSale", ({queryStringParameters: {ExclusiveStartKey}}, res) =
   }
   const params = {
     TableName: `cryptomon-shop-${env}`,
-    ExclusiveStartKey
+    ExclusiveStartKey,
+    Limit: paginatorLimit
   };
 
   dynamodb.scan(params)
