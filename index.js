@@ -66,7 +66,7 @@ app.get("/battlesOfAddress", ({queryStringParameters: {address, ExclusiveStartKe
     TableName: `cryptomon-events-${env}`,
     IndexName: "EventTypeResults",
     ExclusiveStartKey,
-    Limit: paginatorLimit, //warning: Limit is applied before filtering.
+    //Limit: paginatorLimit, //warning: Limit is applied before filtering. removed for now.
     ExpressionAttributeValues: {
       ":e": { S: "Results" },
       ":a": { S: address.substr(2) }
@@ -81,8 +81,23 @@ app.get("/battlesOfAddress", ({queryStringParameters: {address, ExclusiveStartKe
     .catch(e => res.status(500).json(e));
 });
 
-app.get("/monstersInSale", (req, res) => {
-  //TODO
+app.get("/monstersInSale", ({queryStringParameters: {ExclusiveStartKey}}, res) => {
+  if (ExclusiveStartKey) {
+    try {
+      ExclusiveStartKey = JSON.parse(ExclusiveStartKey)
+    } catch (err) {
+      return res.status(400).send("Invalid ExclusiveStartKey parameter.")
+    }
+  }
+  const params = {
+    TableName: `cryptomon-shop-${env}`,
+    ExclusiveStartKey
+  };
+
+  dynamodb.scan(params)
+    .promise()
+    .then(e => res.status(200).json(e))
+    .catch(e => res.status(500).json(e));
 });
 
 app.all("*", (req, res) => res.sendStatus(404));
