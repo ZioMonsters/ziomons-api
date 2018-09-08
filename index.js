@@ -143,7 +143,7 @@ app.get("/monstersInSale", ({ queryStringParameters: { ExclusiveStartKey } }, re
     .catch(e => res.status(500).json(e))
 })
 
-app.post("/ ", validateSchema(schemas.sendFeedback), ({ body:{ feedbackValue, user }}, res) => {
+app.post("/sendFeedback ", validateSchema(schemas.sendFeedback), ({ body:{ feedbackValue, user }}, res) => {
   dynamodb.putItem({
     TableName: `cryptomon-feedback-${env}`,
     Item: {
