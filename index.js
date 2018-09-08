@@ -143,7 +143,7 @@ app.get("/monstersInSale", ({ queryStringParameters: { ExclusiveStartKey } }, re
     .catch(e => res.status(500).json(e))
 })
 
-app.post("/sendFeedback", validateSchema(schemas.sendFeedback), ({ body:{ feedbackValue, user }}, res) => {
+app.post("/ ", validateSchema(schemas.sendFeedback), ({ body:{ feedbackValue, user }}, res) => {
   dynamodb.putItem({
     TableName: `cryptomon-feedback-${env}`,
     Item: {
@@ -151,7 +151,7 @@ app.post("/sendFeedback", validateSchema(schemas.sendFeedback), ({ body:{ feedba
         S: feedbackValue
       },
       user: {
-        N: user
+        S: user
       }
     },
     ConditionExpression: "attribute_not_exists(feedbackValue)"
