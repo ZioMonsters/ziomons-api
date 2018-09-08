@@ -4,31 +4,24 @@ const AWS = require("aws-sdk")
 const dynamodb = new AWS.DynamoDB({ region: "eu-west-3" })
 const documentClient = new AWS.DynamoDB.DocumentClient({ region: "eu-west-3" })
 const pkg = require("./package.json")
+const validateSchema = require("./validator.js")
+const schemas = require("./schemas.js")
 
 const env = "production"
 const paginatorLimit = 32
 
-;["body-parser", "query-parser", "res-error"].forEach(middleware => app.use(require(`./middlewares/${middleware}.js`)()))
+;["body-parser", "query-parser", "res-error", "cors"].forEach(middleware => app.use(require(`./middlewares/${middleware}.js`)()))
+
+app.options("*", (req, res) => {
+  res.sendStatus(200)
+})
 
 app.get("/home", (req, res) => res.send("This is cryptomon"))
 
 app.get("/info", (req, res) => res.json(pkg))
 
 // returns an array of objects ({ id, attack, defence, speed, experience, level, rarity })
-// da mettere validation del limit e del next nel middleware di validation
-app.get("/listMonsters", ({ query: { address, next, limit = 50 } }, res) => {
-
-  // da spostare in un middleware di validation
-  // if (!/^0x[a-fA-F0-9]{40}$/.test(address)) return res.status(400).send("Invalid address parameter.")
-
-  // if (ExclusiveStartKey) {
-  //   try {
-  //     ExclusiveStartKey = JSON.parse(ExclusiveStartKey)
-  //   } catch (err) {
-  //     return res.status(400).send("Invalid ExclusiveStartKey parameter.")
-  //   }
-  // }
-
+app.get("/listMonsters", validateSchema(schemas.listMonsters), ({ query: { address, next, limit = 50 } }, res) => {
   documentClient.query({
     TableName: `cryptomon-monsters-${process.env.NODE_ENV}`,
     IndexName: "user-monsterId-index",
@@ -65,42 +58,33 @@ app.get("/listMonsters", ({ query: { address, next, limit = 50 } }, res) => {
       console.error(err)
       res.send(err)
     })
-  //
-  // const params = {
-  //   TableName: `cryptomon-monsters-${env}`,
-  //   Limit: paginatorLimit,
-  //   ExclusiveStartKey,
-  //   ExpressionAttributeValues: {
-  //     ":a" : {
-  //       S: address.substr(2)
-  //     }
-  //   },
-  //   KeyConditionExpression: "address = :a"
-  // }
-  //
-  // dynamodb.query(params)
-  //   .promise()
-  //   .then(e => res.status(200).json(e))
-  //   .catch(e => res.status(500).json(e))
 })
 
-app.get("/getMonster", ({ query: { monsterId }}, res) => {
+// get monster details
+app.get("/getMonster", validateSchema(schemas.getMonster), ({ query: { monsterId }}, res) => {
   documentClient.get({
     TableName: `cryptomon-monsters-${process.env.NODE_ENV}`,
     Key: {
       monsterId
     }
   }).promise()
-    .then(data => res.json(data.Item))
+    .then(data => {
+      if (data.Item) {
+        res.json(data.Item)
+      } else {
+        const err = new Error("Not found")
+        err.status = 404
+        err.type = "NOT_FOUND"
+        throw err
+      }
+    })
     .catch(err => res.error(err))
 })
 
 // returns an array of objects ({ clashId, opponent, userTeam, opponentTeam, bonusWinner, result, bet })
-// WON, LOST, DRAW
-app.get("/listClashes", ({ query: { address, next, limit = 50 } }, res) => {
-  // if (!/^0x[a-fA-F0-9]{40}$/.test(address)) return res.status(400).send("Invalid address.")
-
-  const params = {
+// result can be WON, LOST or DRAW
+app.get("/listClashes", validateSchema(schemas.listClashes), ({ query: { address, next, limit = 50 } }, res) => {
+  documentClient.query({
     TableName: `cryptomon-clashes-${process.env.NODE_ENV}`,
     IndexName: "user-clashId-index",
     Limit: limit,
@@ -121,39 +105,22 @@ app.get("/listClashes", ({ query: { address, next, limit = 50 } }, res) => {
       "#bet": "bet"
     },
     ProjectionExpression: "#clashId, #opponent, #userTeam, #opponentTeam, #bonusWinner, #result, #bet"
-  }
-
-  documentClient.query(params).promise()
+  }).promise()
     .then(({ Items, Count }) => res.json({ count: Count, clashes: Items }))
     .catch(err => res.error(err))
 })
 
-app.get("/battleInfo", ({ queryStringParameters: { eventHash, ExclusiveStartKey } }, res) => {
-  if (ExclusiveStartKey) {
-    try {
-      ExclusiveStartKey = JSON.parse(ExclusiveStartKey)
-    } catch (err) {
-      return res.status(400).send("Invalid ExclusiveStartKey parameter.")
+// get battle info
+app.get("/getBattle", validateSchema(schemas.getBattle), ({ query: { clashId, address } }, res) => {
+  documentClient.get({
+    TableName: `cryptomon-clashes-${env}`,
+    Key: {
+      clashId,
+      user: address
     }
-  }
-
-  const params = {
-    TableName: `cryptomon-battles-${env}`,
-    IndexName: "hashIndex",
-    Limit: paginatorLimit,
-    ExclusiveStartKey,
-    ExpressionAttributeValues: {
-      ":h" : {
-        S: eventHash
-      }
-    },
-    KeyConditionExpression: "eventHash = :h"
-  }
-
-  dynamodb.query(params)
-    .promise()
-    .then(e => res.status(200).json(e))
-    .catch(e => res.status(500).json(e))
+  }).promise()
+    .then(data => res.json(data.Item))
+    .catch(err => res.error(err))
 })
 
 app.get("/monstersInSale", ({ queryStringParameters: { ExclusiveStartKey } }, res) => {
@@ -177,5 +144,7 @@ app.get("/monstersInSale", ({ queryStringParameters: { ExclusiveStartKey } }, re
 })
 
 app.all("*", (req, res) => res.sendStatus(404))
+
+app.use(require("./middlewares/validation-error.js")())
 
 exports.handler = (...args) => app.listen(...args)
