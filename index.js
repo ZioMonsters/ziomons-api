@@ -7,7 +7,7 @@ const pkg = require("./package.json")
 const validateSchema = require("./validator.js")
 const schemas = require("./schemas.js")
 
-const env = "production"
+const env = "staging"
 const paginatorLimit = 32
 
 ;["body-parser", "query-parser", "res-error", "cors"].forEach(middleware => app.use(require(`./middlewares/${middleware}.js`)()))
@@ -143,10 +143,10 @@ app.get("/monstersInSale", ({ queryStringParameters: { ExclusiveStartKey } }, re
     .catch(e => res.status(500).json(e))
 })
 
-app.post("/sendFeedback", validateSchema(schemas.getBattle), ({body:{feedbackValue, user}}, res) => {
+app.post("/sendFeedback", validateSchema(schemas.sendFeedback), ({ body:{ feedbackValue, user }}, res) => {
   dynamodb.updateItem({
     TableName: `cryptomon-feedback-${env}`,
-    Item: {
+    Key: {
       feedbackValue: {
         S: feedbackValue
       },
