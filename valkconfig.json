@@ -18,7 +18,12 @@
         "MemorySize": "128",
         "Timeout": "10",
         "Runtime": "nodejs8.10",
-        "Role": "arn:aws:iam::477398036046:role/valkyrie/staging/cryptomon-api-staging-lambda"
+        "Role": "arn:aws:iam::477398036046:role/valkyrie/staging/cryptomon-api-staging-lambda",
+        "Environment": {
+          "Variables": {
+            "NODE_ENV": "staging"
+          }
+        }
       }
     },
     "production": {
