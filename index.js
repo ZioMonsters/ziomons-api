@@ -143,6 +143,23 @@ app.get("/monstersInSale", ({ queryStringParameters: { ExclusiveStartKey } }, re
     .catch(e => res.status(500).json(e))
 })
 
+app.post("/sendFeedback", validateSchema(schemas.getBattle), ({body:{feedbackValue, user}}, res) => {
+  dynamodb.updateItem({
+    TableName: `cryptomon-feedback-${env}`,
+    Item: {
+      feedbackValue: {
+        S: feedbackValue
+      },
+      user: {
+        N: user
+      }
+    },
+    UpdateExpression: "SET"
+  }).promise().then(() => {
+    res.status(200).send("Thanks for your feedback")
+  })
+})
+
 app.all("*", (req, res) => res.sendStatus(404))
 
 app.use(require("./middlewares/validation-error.js")())

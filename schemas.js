@@ -81,3 +81,20 @@ e.getBattle = {
     additionalProperties: false
   }
 }
+
+e.sendFeedback = {
+  query: {
+    type: "object",
+    required: ["feedbackValue", "user"],
+    properties: {
+      feedbackValue: {
+        type: "string"
+      },
+      user: {
+        type: "number" //todo limit 1-5
+      }
+    },
+    additionalProperties: false
+  }
+}
+
