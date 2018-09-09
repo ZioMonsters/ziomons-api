@@ -91,7 +91,7 @@ e.sendFeedback = {
         type: "string"
       },
       user: {
-        type: "number" //todo limit 1-5
+        type: "string"
       }
     },
     additionalProperties: false
