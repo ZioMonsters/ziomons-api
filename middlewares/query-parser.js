@@ -1,5 +1,5 @@
 module.exports = () => (req, res, next) => {
-  console.log(req.query)
+
   if (!req.query) {
     req.query = {}
   }
@@ -7,7 +7,7 @@ module.exports = () => (req, res, next) => {
   const { params } = req.query
   const invalidQueryParams = Object.entries(req.query).filter(([key]) => key !== "params")
   if (invalidQueryParams.length) {
-    return res.error(new Error(`Invalid query keys; the only allowed query parameter is "params" and accepts a JSON value (example: params={${invalidQueryParams.map(([key, value])=> `"${key}": "${value}"`).join(", ")}} )`))
+    return res.send(new Error(`Invalid query keys; the only allowed query parameter is "params" and accepts a JSON value (example: params={${invalidQueryParams.map(([key, value])=> `"${key}": "${value}"`).join(", ")}} )`))
   }
 
   try {
@@ -16,7 +16,7 @@ module.exports = () => (req, res, next) => {
       // req.query = params
     }
   } catch (err) {
-    return res.error(err)
+    return res.send(err)
   }
   next()
 }
